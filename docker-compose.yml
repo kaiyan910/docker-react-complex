@@ -1,0 +1,63 @@
+version: "3"
+services:
+	# >> postgres
+	postgres:
+		image: postgres:latest
+		environment:
+      - POSTGRES_PASSWORD=postgres_password
+	# >> redis
+	redis:
+		image: redis:latest
+	# >> nginx
+	nginx:
+		build:
+			dockerfile: DockerFile.dev
+			context: ./nginx
+		restart: always
+		depends_on:
+      - api
+      - client
+		ports:
+			- 3050:80
+	# >> server (api)
+	api:
+		build:
+			# look for DockerFile
+			dockerfile: Dockerfile.dev
+			# look for directory
+			context: ./server
+		volumes: 
+			# keep the container node_modules
+			# do not mount to host directory
+			- /app/node_modules
+			- ./server:/app
+		environment: 
+			- REDIS_HOST=redis
+			- REDIS_PORT=6379
+			- PGHOST=postgres
+			- PGPORT=5432
+			- PGUSER=postgres
+			- PGPASSWORD=postgres_password
+			- PGDATABASE=postgres
+		depends_on:
+			- postgres
+	# >> client
+	client:
+		# Recently, a bug was introduced with the latest Create React App 
+		# that is causing the React app to exit 
+		# when starting with Docker Compose.
+		stdin_open: true
+		build:
+			dockerfile: Dockerfile.dev
+			context: ./client
+		volumes: 
+			- /app/node_modules
+			- ./client:/app
+	# >> worker
+	worker:
+		build:
+			dockerfile: Dockerfile.dev
+			context: ./worker
+		volumes: 
+			- /app/node_modules
+			- ./worker:/app
