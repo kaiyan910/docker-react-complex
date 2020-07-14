@@ -1,0 +1,36 @@
+// {
+//   "AWSEBDockerrunVersion": 2,
+//   "containerDefinitions": [
+//     {
+//       "name": "client",
+//       "image": "kenny910/docker-react-complex-client",
+//       "hostname": "client",
+//       "essential": false
+//     },
+//     {
+//       "name": "server",
+//       "image": "kenny910/docker-react-complex-server",
+//       "hostname": "api",
+//       "essential": false
+//     },
+//     {
+//       "name": "worker",
+//       "image": "kenny910/docker-react-complex-worker",
+//       "hostname": "worker",
+//       "essential": false
+//     },
+//     {
+//       "name": "nginx",
+//       "image": "kenny910/docker-react-complex-nginx",
+//       "hostname": "nginx",
+//       "essential": true,
+//       "portMappings": [
+//         {
+//           "hostPort": 80,
+//           "containerPort": 80
+//         }
+//       ],
+//       "links": ["client", "server"]
+//     }
+//   ]
+// }
