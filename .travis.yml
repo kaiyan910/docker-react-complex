@@ -1,0 +1,38 @@
+language: generic 
+sudo: required
+services:
+  - docker
+
+before_install:
+  # create a container for testing
+  - docker build -t kenny910/docker-react-complex-test -f ./client/Dockerfile.dev .
+
+script:
+  # run test for react client
+  - docker run -e CI=true kenny910/docker-react-complex-test npm run test
+
+after_success:
+  # create image ready to upload to docker hub
+  - docker build -t kenny910/docker-react-complex-client ./client
+  - docker build -t kenny910/docker-react-complex-nginx ./nginx
+  - docker build -t kenny910/docker-react-complex-server ./server
+  - docker build -t kenny910/docker-react-complex-worker ./worker
+  # login to docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push kenny910/docker-react-complex-client
+  - docker push kenny910/docker-react-complex-nginx
+  - docker push kenny910/docker-react-complex-server
+  - docker push kenny910/docker-react-complex-worker
+
+
+# deploy:
+#   provider: elasticbeanstalk
+#   region: "ap-southeast-1"
+#   app: "docker-react"
+#   env: "DockerReact-env"
+#   bucket_name: "elasticbeanstalk-ap-southeast-1-667775770117"
+#   bucket_path: "docker-react"
+#   on:
+#     branch: master
+#   access_key_id: $AWS_ACCESS_KEY
+#   secret_access_key: $AWS_SECRET_KEY
